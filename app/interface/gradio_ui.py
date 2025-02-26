@@ -1,73 +1,61 @@
 import gradio as gr
-import time
+import os
+import sys
+from PIL import Image
+import numpy as np
+
+# 添加父目录到路径，以便导入 utils 模块
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.image_processing import ImageProcessor
+
+# 导入我们的处理函数
+from ..utils.process import process_image
 
 def create_gradio_interface(generator):
-    def generate_fn(image, prompt):
-        if image is None:
-            return None
+    """创建Gradio界面"""
+    
+    def handle_image(input_image, pixel_size=20):
+        """处理上传的图像或绘制的图像"""
+        if input_image is None:
+            return None, "请上传或绘制图像"
         
         try:
-            result = generator.generate(image, prompt)
-            print('Generation response:', result)
-            return result
-            
+            # 调用我们的新处理函数
+            result_image = process_image(input_image, pixel_size=pixel_size)
+            return result_image, "处理成功"
         except Exception as e:
-            print(f"错误: {str(e)}")
-            print('Generation error:', e)
-            return None
-
-    # 创建 Gradio 界面
-    with gr.Blocks(theme=gr.themes.Soft()) as interface:
+            import traceback
+            traceback.print_exc()
+            return None, f"处理失败: {str(e)}"
+    
+    # 创建Gradio界面
+    with gr.Blocks(title="像素画生成器") as demo:
         gr.Markdown("# 像素画生成器")
         
         with gr.Row():
             with gr.Column():
-                input_image = gr.Image(
-                    label="上传草图",
-                    type="pil",
-                    height=400,
-                    width=400,
-                    image_mode="RGB",
-                    sources=["upload", "webcam", "clipboard"]
-                )
-                # 使用 gr.Sketchpad 组件来代替手绘草图
-                sketchpad = gr.Sketchpad(
-                    label="绘图",
-                    height=400,
-                    width=400
-                )
-                prompt = gr.Textbox(
-                    label="描述",
-                    placeholder="描述你想要的像素画风格...",
-                    value="pixel art of a cute character"
-                )
-                generate_btn = gr.Button("生成", variant="primary")
+                # 输入区域 - 只使用上传功能，移除绘图功能
+                input_image = gr.Image(label="上传草图", type="pil")
+                
+                pixel_size = gr.Slider(minimum=5, maximum=50, value=20, step=1, 
+                                      label="像素大小")
+                
+                process_btn = gr.Button("生成像素画")
             
             with gr.Column():
-                output_image = gr.Image(
-                    label="生成结果",
-                    height=400,
-                    width=400
-                )
-
-        gr.Markdown("""
-        ### 支持的图片格式：
-        - PNG (.png)
-        - JPEG/JPG (.jpg, .jpeg)
+                # 输出区域
+                output_image = gr.Image(label="生成结果")
+                output_message = gr.Textbox(label="状态")
         
-        ### 提示：
-        - 可以直接上传图片
-        - 也可以使用内置绘图工具绘制
-        - 或从剪贴板粘贴图片
-        """)
-
-        # 绑定生成按钮
-        generate_btn.click(
-            fn=generate_fn,
-            inputs=[input_image, prompt],
-            outputs=output_image,
-            api_name=None,
-            show_progress="full"
+        # 连接按钮和处理函数
+        process_btn.click(
+            fn=handle_image,
+            inputs=[input_image, pixel_size],
+            outputs=[output_image, output_message]
         )
+    
+    return demo
 
-    return interface
+# 启动应用
+if __name__ == "__main__":
+    demo.launch()
