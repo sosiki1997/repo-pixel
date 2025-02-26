@@ -34,8 +34,16 @@ def create_gradio_interface(generator):
         
         with gr.Row():
             with gr.Column():
-                # 输入区域 - 只使用上传功能，移除绘图功能
-                input_image = gr.Image(label="上传草图", type="pil")
+                # 输入区域 - 设置固定大小
+                input_image = gr.Image(
+                    label="上传草图", 
+                    type="pil",
+                    height=400,  # 设置固定高度
+                    width=400,   # 设置固定宽度
+                    container=True,  # 使用容器包裹
+                    show_download_button=False,  # 不显示下载按钮
+                    show_label=True,  # 显示标签
+                )
                 
                 pixel_size = gr.Slider(minimum=5, maximum=50, value=20, step=1, 
                                       label="像素大小")
@@ -43,8 +51,14 @@ def create_gradio_interface(generator):
                 process_btn = gr.Button("生成像素画")
             
             with gr.Column():
-                # 输出区域
-                output_image = gr.Image(label="生成结果")
+                # 输出区域 - 也设置固定大小
+                output_image = gr.Image(
+                    label="生成结果",
+                    height=400,  # 设置 固定高度
+                    width=400,   # 设置固定宽度
+                    container=True,  # 使用容器包裹
+                    show_download_button=True,  # 显示下载按钮
+                )
                 output_message = gr.Textbox(label="状态")
         
         # 连接按钮和处理函数

@@ -8,6 +8,9 @@ import webbrowser
 import time
 import threading
 
+# 不再需要直接导入 ImageProcessor，因为我们现在通过 process.py 使用它
+# from utils.image_processing import ImageProcessor
+
 app = FastAPI(title="Pixel Art Generator")
 
 # 配置 CORS
@@ -21,6 +24,9 @@ app.add_middleware(
 
 # 初始化生成器
 generator = PixelArtGenerator()
+
+# 不再需要直接初始化 ImageProcessor
+# image_processor = ImageProcessor()
 
 @app.post("/generate")
 async def generate_pixel_art(
@@ -48,10 +54,20 @@ def open_browser():
     time.sleep(2)  # 等待服务器完全启动
     webbrowser.open("http://127.0.0.1:8000")
 
+# 不再需要在这里定义 process_image 函数，因为它已经移到了 utils/process.py
+
 if __name__ == "__main__":
     print("正在启动服务器...")
     print("请在浏览器中访问: http://127.0.0.1:8000")
     print("生成过程可能需要几秒钟，请耐心等待")
+    
+    # 添加一些调试信息
+    print("检查模块导入...")
+    try:
+        from .utils.process import process_image
+        print("成功导入 process_image 函数")
+    except Exception as e:
+        print(f"导入 process_image 函数失败: {str(e)}")
     
     threading.Thread(target=open_browser).start()
     
