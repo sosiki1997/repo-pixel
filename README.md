@@ -36,6 +36,8 @@
 5. **安装依赖：**
     ```bash
     pip install -r requirements.txt
+    pip install torch torchvision opencv-python pillow
+    pip install git+https://github.com/facebookresearch/segment-anything.git
     ```
 
 6. **启动服务器：**

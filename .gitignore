@@ -1,2 +1,9 @@
-models/
+/models/
 .DS_Store
+.specstory/
+.venv/
+.idea/
+.vscode/
+.pytest_cache/
+.ruff_cache/
+
